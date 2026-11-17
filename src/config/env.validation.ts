@@ -39,6 +39,16 @@ class EnvironmentVariables {
 
   @IsOptional() @IsString() ADMIN_EMAIL?: string;
   @IsOptional() @IsString() ADMIN_PASSWORD?: string;
+
+  @IsOptional() @IsString() AWS_REGION?: string;
+  @IsOptional() @IsString() AWS_ACCESS_KEY_ID?: string;
+  @IsOptional() @IsString() AWS_SECRET_ACCESS_KEY?: string;
+  @IsOptional() @IsString() SENDGRID_API_KEY?: string;
+  @IsOptional() @IsString() SENDGRID_EMAIL_SENDER?: string;
+  @IsOptional() @IsString() ZENVIA_TOKEN?: string;
+  @IsOptional() @IsString() ZENVIA_EMAIL?: string;
+  @IsOptional() @IsString() ZENVIA_SMS_FROM?: string;
+  @IsOptional() @IsString() CEP_API?: string;
 }
 
 export function validateEnv(config: Record<string, unknown>) {

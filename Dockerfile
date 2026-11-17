@@ -16,4 +16,4 @@ COPY --from=build /app/dist ./dist
 USER node
 EXPOSE 3000
 # aplica migrations pendentes e sobe a API
-CMD ["sh", "-c", "npx typeorm -d dist/database/data-source.js migration:run && node dist/main"]
+CMD ["sh", "-c", "npx typeorm -d dist/modules/_database/config/database-migrations.config.js migration:run && node dist/main"]

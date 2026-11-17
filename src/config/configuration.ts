@@ -19,6 +19,22 @@ export const configuration = () => ({
       ? Number(process.env.JWT_EXPIRATION)
       : (process.env.JWT_EXPIRATION ?? '1d'),
   },
+  // integrações do shared/repositories (opcionais: só falham quando usadas sem configurar)
+  aws: {
+    region: process.env.AWS_REGION ?? 'us-east-1',
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+  sendgrid: {
+    apiKey: process.env.SENDGRID_API_KEY,
+    emailSender: process.env.SENDGRID_EMAIL_SENDER,
+  },
+  zenvia: {
+    token: process.env.ZENVIA_TOKEN,
+    email: process.env.ZENVIA_EMAIL,
+    smsFrom: process.env.ZENVIA_SMS_FROM ?? 'cto',
+  },
+  cepApi: process.env.CEP_API ?? 'https://viacep.com.br/ws/--cep--/json/',
 });
 
 export type AppConfig = ReturnType<typeof configuration>;

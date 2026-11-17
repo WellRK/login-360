@@ -2,16 +2,18 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { JwtAuthGuard } from './common/guards/jwt-auth.guard.js';
-import { RolesGuard } from './common/guards/roles.guard.js';
-import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
-import { ResponseInterceptor } from './common/interceptors/response.interceptor.js';
+import { JwtAuthGuard } from './shared/guards/jwt-auth.guard.js';
+import { RolesGuard } from './shared/guards/roles.guard.js';
+import { HttpExceptionFilter } from './shared/filters/http-exception.filter.js';
+import { ResponseInterceptor } from './shared/interceptors/response.interceptor.js';
 import { configuration } from './config/configuration.js';
 import { validateEnv } from './config/env.validation.js';
-import { DatabaseModule } from './database/database.module.js';
+import { DatabaseModule } from './modules/_database/database.module.js';
+import { DatabaseSeedModule } from './modules/_database-seed/database-seed.module.js';
+import { SharedModule } from './shared/shared.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
-import { HealthController } from './modules/health/health.controller.js';
-import { UsersModule } from './modules/users/users.module.js';
+import { HealthModule } from './modules/health/health.module.js';
+import { UserModule } from './modules/user/user.module.js';
 
 @Module({
   imports: [
@@ -24,10 +26,12 @@ import { UsersModule } from './modules/users/users.module.js';
     // limite padrão por IP; rotas sensíveis (login, cadastro, LLM) apertam com @Throttle
     ThrottlerModule.forRoot({ throttlers: [{ name: 'default', ttl: 60_000, limit: 120 }] }),
     DatabaseModule,
-    UsersModule,
+    DatabaseSeedModule,
+    SharedModule,
+    UserModule,
     AuthModule,
+    HealthModule,
   ],
-  controllers: [HealthController],
   providers: [
     // ordem importa: limita taxa, autentica, depois checa papel
     { provide: APP_GUARD, useClass: ThrottlerGuard },
