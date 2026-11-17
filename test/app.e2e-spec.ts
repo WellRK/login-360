@@ -21,7 +21,7 @@ describe('Auth + Users (e2e)', () => {
   });
 
   afterAll(async () => {
-    await app.get(DataSource).query('DELETE FROM users WHERE email = $1', [email]);
+    await app.get(DataSource).query('DELETE FROM app.users WHERE email = $1', [email]);
     await app.close();
   });
 

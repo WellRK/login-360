@@ -2,7 +2,8 @@ import { Column, Entity, Index } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity.js';
 import { Role } from '../../common/enums/role.enum.js';
 
-@Entity({ name: 'users' })
+/** Schema "app": tabelas do produto, migradas só por este projeto. */
+@Entity({ name: 'users', schema: 'app' })
 export class UserEntity extends BaseEntity {
   @Column({ length: 100 })
   name: string;

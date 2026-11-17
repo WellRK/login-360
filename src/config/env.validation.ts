@@ -13,7 +13,15 @@ class EnvironmentVariables {
   CORS_ORIGINS: string = '*';
 
   @IsBooleanString()
-  ENABLE_DOCS: string = 'true';
+  ENABLE_DOCS: string = 'false';
+
+  /** Cadastro público em /auth/register. Desligado por padrão (SaaS: convite/admin até ter tenants). */
+  @IsBooleanString()
+  ALLOW_REGISTER: string = 'false';
+
+  /** Nº de proxies na frente (nginx/traefik) para o req.ip do throttler ser o IP real. 0 = sem proxy. */
+  @IsInt()
+  TRUST_PROXY: number = 0;
 
   @IsString() @IsNotEmpty() DB_HOST: string;
   @IsInt() DB_PORT: number = 5432;
@@ -36,8 +44,11 @@ class EnvironmentVariables {
 export function validateEnv(config: Record<string, unknown>) {
   const validated = plainToInstance(EnvironmentVariables, config, { enableImplicitConversion: true });
   const errors = validateSync(validated, { skipMissingProperties: false });
-  if (errors.length > 0) {
-    const msg = errors.map((e) => Object.values(e.constraints ?? {}).join(', ')).join('\n  - ');
+  const msgs = errors.map((e) => Object.values(e.constraints ?? {}).join(', '));
+  if (validated.NODE_ENV === 'production' && validated.CORS_ORIGINS.split(',').some((o) => o.trim() === '*'))
+    msgs.push('CORS_ORIGINS="*" não é permitido em produção (liste as origens do frontend)');
+  if (msgs.length > 0) {
+    const msg = msgs.join('\n  - ');
     throw new Error(`Variáveis de ambiente inválidas:\n  - ${msg}`);
   }
   return validated;

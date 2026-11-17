@@ -3,6 +3,8 @@ export const configuration = () => ({
   port: Number(process.env.PORT ?? 3000),
   corsOrigins: (process.env.CORS_ORIGINS ?? '*').split(',').map((o) => o.trim()),
   enableDocs: process.env.ENABLE_DOCS === 'true',
+  allowRegister: process.env.ALLOW_REGISTER === 'true',
+  trustProxy: Number(process.env.TRUST_PROXY ?? 0),
   db: {
     host: process.env.DB_HOST,
     port: Number(process.env.DB_PORT ?? 5432),

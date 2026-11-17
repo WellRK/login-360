@@ -1,3 +1,6 @@
+# Dev local: `npm run db:up` sobe só o banco (API roda com npm run start:dev).
+# Stack completa: `docker-compose up -d --build`.
+# Serviços internos (outras APIs/workers) entram na rede "interna" SEM `ports:` — só a API os alcança.
 services:
   db:
     image: postgres:17
@@ -7,13 +10,32 @@ services:
       POSTGRES_USER: ${DB_USER:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
     ports:
-      - "${DB_PORT:-5432}:5432"
+      # só localhost: acessível na máquina/túnel SSH, nunca pela rede
+      - "127.0.0.1:${DB_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks: [interna]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
       interval: 5s
       retries: 10
+
+  api:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+    ports:
+      - "${PORT:-3000}:${PORT:-3000}"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [interna]
+
+networks:
+  interna:
 
 volumes:
   pgdata:

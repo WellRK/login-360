@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard.js';
 import { RolesGuard } from './common/guards/roles.guard.js';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
@@ -20,13 +21,16 @@ import { UsersModule } from './modules/users/users.module.js';
       load: [configuration],
       validate: validateEnv,
     }),
+    // limite padrão por IP; rotas sensíveis (login, cadastro, LLM) apertam com @Throttle
+    ThrottlerModule.forRoot({ throttlers: [{ name: 'default', ttl: 60_000, limit: 120 }] }),
     DatabaseModule,
     UsersModule,
     AuthModule,
   ],
   controllers: [HealthController],
   providers: [
-    // ordem importa: primeiro autentica, depois checa papel
+    // ordem importa: limita taxa, autentica, depois checa papel
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
     { provide: APP_INTERCEPTOR, useClass: ResponseInterceptor },

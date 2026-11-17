@@ -11,6 +11,9 @@ async function bootstrap() {
   const config = app.get(ConfigService);
   const logger = new Logger('main');
 
+  const trustProxy = config.get<number>('trustProxy', 0);
+  if (trustProxy > 0) app.set('trust proxy', trustProxy); // req.ip real atrás de nginx/traefik (throttler)
+
   app.use(helmet());
   app.useBodyParser('json', { limit: '10mb' });
   app.setGlobalPrefix('api');
@@ -35,7 +38,7 @@ async function bootstrap() {
   if (config.get<boolean>('enableDocs')) {
     const doc = SwaggerModule.createDocument(
       app,
-      new DocumentBuilder().setTitle(`360 API | ${config.get('env')}`).setVersion('1.0.0').addBearerAuth().build(),
+      new DocumentBuilder().setTitle(`API | ${config.get('env')}`).setVersion('1.0.0').addBearerAuth().build(),
     );
     SwaggerModule.setup('docs', app, doc);
     logger.log('Swagger em /docs');
