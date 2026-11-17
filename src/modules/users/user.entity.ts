@@ -1,0 +1,31 @@
+import { Column, Entity, Index } from 'typeorm';
+import { BaseEntity } from '../../common/entities/base.entity.js';
+import { Role } from '../../common/enums/role.enum.js';
+
+@Entity({ name: 'users' })
+export class UserEntity extends BaseEntity {
+  @Column({ length: 100 })
+  name: string;
+
+  /** Sempre gravado em minúsculas (ver UsersService). Único só entre não deletados. */
+  @Index('uq_users_email', { unique: true, where: '"deleted_at" IS NULL' })
+  @Column({ length: 255 })
+  email: string;
+
+  /** Hash bcrypt. select:false = nunca vem em find() por acidente. */
+  @Column({ select: false })
+  password: string;
+
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  phone: string | null;
+
+  @Index('uq_users_cpf', { unique: true, where: '"cpf" IS NOT NULL AND "deleted_at" IS NULL' })
+  @Column({ type: 'varchar', length: 11, nullable: true })
+  cpf: string | null;
+
+  @Column({ type: 'enum', enum: Role, default: Role.USER })
+  role: Role;
+
+  @Column({ default: true })
+  active: boolean;
+}
